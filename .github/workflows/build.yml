@@ -1,0 +1,27 @@
+name: Build WSL2 Kernel
+
+on:
+  workflow_dispatch: # This allows you to manually trigger the build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential flex bison dwarves libssl-dev libelf-dev bc
+
+    - name: Build the Kernel
+      run: |
+        make KCONFIG_CONFIG=Microsoft/config-wsl -j$(nproc)
+
+    - name: Upload bzImage Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: bzImage-x86_64
+        path: arch/x86/boot/bzImage
